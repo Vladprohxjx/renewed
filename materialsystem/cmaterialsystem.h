@@ -39,6 +39,7 @@
 class CJob;
 class CTextureCompositor;
 class IThreadPool;
+class IRenderBackend;
 struct DeferredUpdateLightmapInfo_t;
 
 // typedefs to allow use of delegation macros
@@ -633,6 +634,7 @@ private:
 	char *									m_pShaderDLL;
 	CSysModule *							m_ShaderHInst; // Used to dynamically load the shader DLL
 	CreateInterfaceFn						m_ShaderAPIFactory;
+	IRenderBackend *						m_pRenderBackend;
 
 	int										m_nAdapter;
 	int										m_nAdapterFlags;
