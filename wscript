@@ -426,6 +426,8 @@ def check_deps(conf):
 		conf.check(lib='libpng', uselib_store='PNG', define_name='HAVE_PNG')
 		conf.check(lib='d3dx9', uselib_store='D3DX9')
 		conf.check(lib='d3d9', uselib_store='D3D9')
+		conf.check(lib='d3d11', uselib_store='D3D11')
+		conf.check(lib='dxgi', uselib_store='DXGI')
 		conf.check(lib='dsound', uselib_store='DSOUND')
 		conf.check(lib='dxguid', uselib_store='DXGUID')
 		if conf.options.OPUS:

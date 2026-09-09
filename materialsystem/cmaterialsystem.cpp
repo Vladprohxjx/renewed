@@ -24,6 +24,7 @@
 #include "materialsystem/imaterialproxy.h"
 #include "vstdlib/IKeyValuesSystem.h"
 #include "ctexturecompositor.h"
+#include "renderbackend.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
@@ -520,6 +521,7 @@ CMaterialSystem::CMaterialSystem()
 	m_nRenderThreadID = (uintp)-1;
 	m_hAsyncLoadFileCache = NULL;
 	m_ShaderHInst = 0;
+	m_pRenderBackend = NULL;
 	m_pMaterialProxyFactory = NULL;
 	m_nAdapter = 0;
 	m_nAdapterFlags = 0;
@@ -567,6 +569,9 @@ CMaterialSystem::CMaterialSystem()
 
 CMaterialSystem::~CMaterialSystem()
 {
+	DestroyRenderBackend( m_pRenderBackend );
+	m_pRenderBackend = NULL;
+
 	if (m_pShaderDLL)
 	{
 		delete[] m_pShaderDLL;
@@ -598,6 +603,11 @@ CreateInterfaceFn CMaterialSystem::CreateShaderAPI( char const* pShaderDLL )
 
 void CMaterialSystem::DestroyShaderAPI()
 {
+	// The compatibility backend only borrows interfaces owned by the shader
+	// module, so it must be destroyed before that module is unloaded.
+	DestroyRenderBackend( m_pRenderBackend );
+	m_pRenderBackend = NULL;
+
 	if (m_ShaderHInst)
 	{
 		// NOTE: By unloading the library, this will destroy m_pShaderAPI
@@ -688,6 +698,19 @@ bool CMaterialSystem::Connect( CreateInterfaceFn factory )
 	g_pShaderShadow = (IShaderShadow*)m_ShaderAPIFactory( SHADERSHADOW_INTERFACE_VERSION, 0 );
 	if ( !g_pShaderShadow )
 		return false;
+
+	// All existing material and engine callers continue to use the Source
+	// shader interfaces. This adapter establishes the backend ownership and
+	// capability boundary for future render devices without changing them.
+	m_pRenderBackend = CreateLegacyShaderAPIBackend( g_pShaderAPI, g_pShaderDevice, g_pShaderDeviceMgr );
+	if ( !m_pRenderBackend )
+		return false;
+
+	// Route the material-system compatibility path through the backend rather
+	// than retaining a second set of independently owned interface pointers.
+	g_pShaderAPI = m_pRenderBackend->GetLegacyShaderAPI();
+	g_pShaderDevice = m_pRenderBackend->GetLegacyShaderDevice();
+	g_pShaderDeviceMgr = m_pRenderBackend->GetLegacyShaderDeviceMgr();
 
 	// Remember the factory for connect
 	g_fnMatSystemConnectCreateInterface = factory;

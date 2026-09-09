@@ -39,6 +39,8 @@ def build(bld):
 		'shadersystem.cpp',
 		'texturemanager.cpp',
 		'pch_materialsystem.cpp',
+		'renderbackend.cpp',
+		'renderbackend_d3d11.cpp',
 		'cmaterialdict.cpp',
 		'cmaterialsystem.cpp',
 		'cmatlightmaps.cpp',
@@ -75,4 +77,3 @@ def build(bld):
 		subsystem = bld.env.MSVC_SUBSYSTEM,
 		idx      = bld.get_taskgen_count()
 	)
-
