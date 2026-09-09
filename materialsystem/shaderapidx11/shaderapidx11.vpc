@@ -1,0 +1,38 @@
+// Source Engine DX11 shader API module.
+$Macro SRCDIR "..\.."
+$Macro OUTBINDIR "$SRCDIR\..\game\bin"
+$Macro OUTBINNAME "shaderapidx11"
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration
+{
+    $Compiler
+    {
+        $AdditionalIncludeDirectories "$BASE;..\"
+        $PreprocessorDefinitions "$BASE;SHADERAPIDX11;SHADER_DLL_EXPORT;USE_ACTUAL_DX;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
+    }
+    $Linker
+    {
+        $AdditionalDependencies "$BASE d3d11.lib dxgi.lib d3dcompiler.lib"
+    }
+}
+
+$Project "shaderapidx11"
+{
+    $Folder "Source Files"
+    {
+        $File "meshbase.cpp"
+        $File "shaderapibase.cpp"
+        $File "shaderapidx11.cpp"
+        $File "shaderdevicebase.cpp"
+        $File "shaderdevicedx11.cpp"
+        $File "shadershadowdx11.cpp"
+        $File "inputlayoutdx11.cpp"
+        $File "meshdx11.cpp"
+        $File "hardwareconfig.cpp"
+        $File "cvballoctracker.cpp"
+        $File "TransitionTable.cpp"
+        $File "$SRCDIR\public\filesystem_helpers.cpp"
+        $File "$SRCDIR\public\tier0\memoverride.cpp"
+    }
+}

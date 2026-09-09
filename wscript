@@ -68,6 +68,7 @@ projects={
 		'materialsystem',
 #		'materialsystem/shaderapiempty',
 		'materialsystem/shaderapidx9',
+		'materialsystem/shaderapidx11',
 		'materialsystem/shaderlib',
 		'materialsystem/stdshaders',
 		'mathlib',
@@ -447,7 +448,7 @@ def configure(conf):
 		conf.env.MSVC_TARGETS = ['x86']
 
 	if sys.platform == 'win32':
-		conf.load('msvc_pdb_ext msdev msvs msvcdeps')
+		conf.load('msvc_pdb_ext msdev msvs')
 	conf.load('subproject xcompile compiler_c compiler_cxx gccdeps gitversion clang_compilation_database strip_on_install_v2 waf_unit_test enforce_pic')
 	if conf.env.DEST_OS == 'win32' and conf.env.DEST_CPU == 'amd64':
 		conf.load('masm')

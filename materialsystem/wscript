@@ -7,18 +7,20 @@ import os
 top = '.'
 PROJECT_NAME = 'materialsystem'
 
+
 def options(opt):
 	# stub
 	return
 
+
 def configure(conf):
-	conf.env.append_unique('DEFINES',[
+	conf.env.append_unique('DEFINES', [
 		'DEFINE_MATERIALSYSTEM_INTERFACE',
 		'MATERIALSYSTEM_EXPORTS',
-		#'PROTECTED_THINGS_ENABLE', # conflicts with stlport
 		'strncpy=use_Q_strncpy_instead',
 		'_snprintf=use_Q_snprintf_instead'
 	])
+
 
 def build(bld):
 	source = [
@@ -39,14 +41,18 @@ def build(bld):
 		'shadersystem.cpp',
 		'texturemanager.cpp',
 		'pch_materialsystem.cpp',
+
+		# Render backend abstraction + DX11 backend.
 		'renderbackend.cpp',
 		'renderbackend_d3d11.cpp',
+
 		'cmaterialdict.cpp',
 		'cmaterialsystem.cpp',
 		'cmatlightmaps.cpp',
 		'cmatrendercontext.cpp',
 		'cmatqueuedrendercontext.cpp',
 		'ctexturecompositor.cpp',
+
 		'../public/tier0/memoverride.cpp'
 	]
 
@@ -56,24 +62,46 @@ def build(bld):
 		'../public/tier0',
 		'../public/tier1',
 		'../common',
-		'../'
+		'../',
+
+		# Allow MaterialSystem sources to see shader API headers.
+		'shaderapidx9',
+		'shaderapidx11'
 	] + bld.env.INCLUDES_SDL2
 
 	defines = []
 
-	libs = ['tier0','tier1','tier2','vstdlib','mathlib','bitmap','shaderlib','vtf']
+	libs = [
+		'tier0',
+		'tier1',
+		'tier2',
+		'vstdlib',
+		'mathlib',
+		'bitmap',
+		'shaderlib',
+		'vtf'
+	]
+
+	# DX11 backend is compiled into materialsystem.dll itself.
+	# Therefore these libraries must be linked here, not only by shaderapidx11.
+	if bld.env.DEST_OS == 'win32' and not bld.env.GL:
+		libs += [
+			'D3D11',
+			'DXGI',
+			'D3DCompiler'
+		]
 
 	install_path = bld.env.LIBDIR
 
 	bld.shlib(
-		source   = source,
-		target   = PROJECT_NAME,
-		name     = PROJECT_NAME,
-		features = 'c cxx',
-		includes = includes,
-		defines  = defines,
-		use      = libs,
-		install_path = install_path,
-		subsystem = bld.env.MSVC_SUBSYSTEM,
-		idx      = bld.get_taskgen_count()
+		source=source,
+		target=PROJECT_NAME,
+		name=PROJECT_NAME,
+		features='c cxx',
+		includes=includes,
+		defines=defines,
+		use=libs,
+		install_path=install_path,
+		subsystem=bld.env.MSVC_SUBSYSTEM,
+		idx=bld.get_taskgen_count()
 	)
